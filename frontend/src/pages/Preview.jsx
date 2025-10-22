@@ -1,18 +1,15 @@
-import { useState, useEffect, use } from 'react';
-import { useParams } from 'react-router';
-import Navbar from '../components/Navbar';
-import { useAppStore } from '../store/appStore';
-import NotFound from './NotFound';
-import LoadingScreen from './LoadingScreen';
-import {
-  useCreateBlockNote,
-} from "@blocknote/react";
+import { useState, useEffect, use } from "react";
+import { useParams } from "react-router";
+import Navbar from "../components/Navbar";
+import { useAppStore } from "../store/appStore";
+import NotFound from "./NotFound";
+import LoadingScreen from "./LoadingScreen";
+import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 
-const PreviewNote = ({pid}) => {
-
+const PreviewNote = ({ pid }) => {
   const preview = useAppStore((s) => s.preview);
   const isDark = useAppStore((s) => s.isDark);
 
@@ -20,22 +17,24 @@ const PreviewNote = ({pid}) => {
     {
       initialContent:
         preview?.content && preview?.content?.length > 0
-        ? preview?.content
-        : [
-          {
-            id: pid,
-            type: "paragraph",
-            content: [{ type: "text", text: "" }],
-          },
-        ],
+          ? preview?.content
+          : [
+              {
+                id: pid,
+                type: "paragraph",
+                content: [{ type: "text", text: "" }],
+              },
+            ],
     },
-    [pid] 
+    [pid]
   );
 
   return (
     <div className="p-4 xl:mx-7 mt-5">
-      <div className="text-6xl text-gray-800 leading-tight dark:text-white font-bold box-border outline-none overflow-visible resize-y px-7 py-5 w-full h-full t">{preview?.title}</div>
-      <div className='w-full h-full overflow-y-auto'>
+      <div className="text-6xl text-gray-800 leading-tight dark:text-white font-bold box-border outline-none overflow-visible resize-y px-7 py-5 w-full h-full t">
+        {preview?.title}
+      </div>
+      <div className="w-full h-full overflow-y-auto">
         <BlockNoteView
           key={pid || "default-editor"}
           editor={editor}
@@ -48,31 +47,30 @@ const PreviewNote = ({pid}) => {
 };
 
 const Preview = () => {
+  const getPreview = useAppStore((s) => s.getPreview);
+  const preview = useAppStore((s) => s.preview);
+  const isLoading = useAppStore((s) => s.isLoading);
+  const [isValid, setIsValid] = useState(true);
 
-    const getPreview = useAppStore((s) => s.getPreview);
-    const preview = useAppStore((s) => s.preview);
-    const isLoading = useAppStore((s) => s.isLoading);
-    const [isValid, setIsValid] = useState(true);
+  const { pid } = useParams();
 
-    const { pid } = useParams();
+  useEffect(() => {
+    const fetchPreview = async () => {
+      await getPreview(pid);
+    };
+    fetchPreview();
+  }, [pid]);
 
-    useEffect(() => {
-        const fetchPreview = async () => {
-            await getPreview(pid);
-        };
-        fetchPreview();
-    },[pid]);
+  useEffect(() => {
+    if (!preview) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+    }
+  }, [preview]);
 
-    useEffect(() => {
-        if (!preview) {
-          setIsValid(false);
-        } else {
-          setIsValid(true);
-        }
-    }, [preview]);
-
-  if (isLoading){
-    return <LoadingScreen />
+  if (isLoading) {
+    return <LoadingScreen />;
   }
 
   if (!isValid) {
@@ -83,14 +81,21 @@ const Preview = () => {
       <div className="flex flex-col overflow-y-auto h-full t">
         <main className="flex-1 bg-stone-50  min-h-screen dark:bg-slate-800 dark:text-slate-100 box-border overflow-auto w-screen t">
           <Navbar />
-          <div className="h-44 md:h-56 md:mb-3 lg:h-64 lg:mb-5 bg-cover bg-center bg-no-repeat rounded-lg" style={{backgroundImage: `url(${note?.cover || "/default-cover.jpeg"})`}} />
+          <div
+            className="h-44 md:h-56 md:mb-3 lg:h-64 lg:mb-5 bg-cover bg-center bg-no-repeat rounded-lg"
+            style={{
+              backgroundImage: `url(${
+                preview?.cover || "/default-cover.jpeg"
+              })`,
+            }}
+          />
           <div className="h-full w-full">
-            <PreviewNote pid={pid}/>
+            <PreviewNote pid={pid} />
           </div>
         </main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Preview
+export default Preview;
