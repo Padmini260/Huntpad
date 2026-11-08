@@ -50,6 +50,6 @@ This project taught me:
 
 🔗 **Live Demo:** [huntpad.onrender.com/home](https://huntpad.onrender.com/home)
 
-> ⚠️ Hosted on Render’s free tier – cold starts may take up to **50 seconds** if the app has been idle.
+> ⚠️ Hosted on Render’s free tier – cold starts may take up to **1 minute** if the app has been idle.
 
 ---
